@@ -1,0 +1,277 @@
+# AutoML config
+- spark version
+- sklearn version
+
+- light version
+- hard version
+
+
+# Pre-training configuration
+random_state: 42
+dataset:
+  file_path: ../datasets/cifar10_keras.py
+  spark_table_path: spark_table_name
+target_name: target
+metric: ['roc_auc',
+
+
+
+classification:
+  # Training configuration
+  - pipeline:
+    - unioun_features:
+        - ModifiedFeatureUnion:
+        - FeatureSelector:
+        # Categorical features selector
+        - imputer_cat_list:
+            - ModifiedSimpleImputer:
+                - name: "ModifiedSimpleImputer for Categorical features"
+                - fill_value: ['missing']
+                - strategy: ['constant', 'most_frequent', 'mean', 'median']
+        - label_encoding:
+            - MyLEncoder:
+        # Numerical features selector
+        - imputer_numeric:
+            - ModifiedSimpleImputer:
+                - name: "ModifiedSimpleImputer for Numerical features"
+                - fill_value: [0, -1]
+                - strategy: ['constant', 'most_frequent', 'mean', 'median']
+        - scaler_normalize:
+            - MinMaxScaler:
+                - feature_range: [(0,1) , (2,3)]
+        - models:
+            - DummyClassifier:
+                - strategy: ['stratified', 'most_frequent', 'prior', 'uniform', 'constant']
+                - random_state: '{{random_state}}'
+            - LogisticRegression:
+                - penalty: ('l1', 'l2')
+                - C: (.01 , 5)
+            - RandomForestClassifier:
+                - name: 'RandomForestClassifier'
+                - n_estimators: [10, 30]
+                - criterion: ['gini', 'entropy']
+            - KNeighborsClassifier:
+                - name: 'KNeighborsClassifier'
+                - n_neighbors: range(3, 6, 2)
+            - CatBoostClassifier:
+                - depth:[3, 9, 10],
+                - 'iterations':[250, 1000],
+                - 'learning_rate':[0.03, 0.1, 0.2, 0.3],
+                - 'l2_leaf_reg':[3, 1, 100],
+
+
+
+        forest_params = {'n_estimators': [10, 30],
+                         'criterion': ('gini', 'entropy')}
+
+  logistic_params = {'penalty': ('l1', 'l2'),
+                             'C': (.01,5)}
+
+
+
+
+
+
+
+Employees:
+- dan:
+    name: Dan D. Veloper
+    job: Developer
+    team: DevOps
+- dora:
+   name: Dora D. Veloper
+   job: Project Manager
+   team: Web Subscriptions
+
+
+
+
+
+Pipeline([
+    # Use FeatureUnion to combine the features
+    ('union', ModifiedFeatureUnion(
+        transformer_list=[
+             # categorical features
+            ('categorical', Pipeline([
+                 ('selector', FeatureSelector(columns = cat_features)),
+                 ('imputer_categorical', imputer_categorical(**current_imputer_categorical_params)),
+                 ('label_encoding', encoder(**current_encoder_param))
+            ])),
+            # numeric features
+            ('numeric', Pipeline([
+                 ('selector', FeatureSelector(columns = digits_features)),
+                 ('imputer_numeric', imputer_numeric(**current_imputer_numeric_params)),
+                 ('scaler', scaler(**current_scaler_param))
+            ])),
+        ])),
+    # Use model fit
+    ('model', clf(**tmp_params)),
+])
+
+
+
+       classifiers = [LogisticRegression,
+               #KNeighborsClassifier,
+               #GradientBoostingClassifier(),
+               RandomForestClassifier]
+        #               SVC()] #
+
+        classifiers_name = ['LogisticRegression',
+
+                            #'KNeighborsClassifier',
+                            #'GradientBoostingClassifier',
+                            'RandomForestClassifier']
+        #                    'SVC']
+
+
+        # Настройка параметров выбранных алгоритмов с помощью GridSearchCV
+        n_folds = 5
+        scores = []
+        fits = []
+        logistic_params = {'penalty': ('l1', 'l2'),
+                           'C': (.01,5)}
+
+        knn_params = {'n_neighbors': list(range(3, 6, 2))}
+
+
+        gbm_params = {'n_estimators': [100, 300, 500],
+                      'learning_rate':(0.1, 0.5, 1),
+                      'max_depth': list(range(3, 6)),
+                      'min_samples_leaf': list(range(10, 31, 10))}
+
+
+
+        forest_params = {'n_estimators': [10, 30],
+                         'criterion': ('gini', 'entropy')}
+
+        #svm_param = {'kernel' : ('linear', 'rbf'), 'C': (.5, 1, 2)} - очень долго считал
+        #params = [logistic_params, knn_params, gbm_params, forest_params]
+
+        params = [logistic_params, forest_params]
+
+
+
+        ############# Заполнение NaN #############
+        imputer_numeric_list = [ModifiedSimpleImputer]
+        imputer_numeric_name = ['ModifiedSimpleImputer']
+
+        simpleimputer_params_numeric = {'fill_value': [0, -1],
+                                        'strategy': ['constant']}
+        params_numeric_list = [simpleimputer_params_numeric]
+
+
+
+
+
+        imputer_cat_list = [ModifiedSimpleImputer]
+        imputer_cat_name = ['ModifiedSimpleImputer']
+
+        simpleimputer_params_cat = {'strategy': ['constant'],
+                                   'fill_value': ['missing']}
+        params_cat_list = [simpleimputer_params_cat]
+
+        ############# Заполнение NaN #############
+
+
+
+        ############# Scaler ################
+
+        scaler_list = [MinMaxScaler]
+        scaler_name_list = ['MinMaxScaler']
+
+        scaler_params = {'feature_range': [(0,1) , (2,3)]}
+        params_scaler_list = [scaler_params]
+
+
+
+digits_features = X_train.select_dtypes(include=['number']).columns.values.tolist()
+cat_features = X_train.select_dtypes(include=['object', ]).columns.values.tolist()
+
+
+
+
+#INITIAL SETTINGS
+data_directory: "./Data/"
+data_name: "breast-cancer-wisconsin.csv"
+drop_columns: ["id","Unnamed: 32"]
+target_name: "diagnosis"
+test_size: 0.3
+random_state: 42
+model_directory: "./Model"
+model_name: KNN_classifier.pkl
+#kNN parameters
+n_neighbors: 3
+weights: uniform
+algorithm: auto
+leaf_size: 15
+p: 2
+metric: minkowski
+n_jobs: 1
+
+
+
+
+
+
+
+model:
+  script_path: ../models/optimized.py
+optimizer:
+  script_path: ../optimizers/adam_keras.py
+  initial_lr: 0.0001
+train:
+  script_path: ../train/train_keras.py
+  artifacts_path: ../artifacts/cifar10_opt/
+  batch_size: 64
+  epochs: 1000
+  data_augmentation:
+    samplewise_center: False
+    samplewise_std_normalization: False
+    rotation_range: 0
+    width_shift_range: 0.1
+    height_shift_range: 0.1
+    horizontal_flip: True
+    vertical_flip: False
+    zoom_range: 0
+    shear_range: 0
+    channel_shift_range: 0
+    featurewise_center: False
+    zca_whitening: False
+evaluate:
+  batch_size: 1000
+  augmentation_factor: 32
+  data_augmentation:
+    samplewise_center: False
+    samplewise_std_normalization: False
+    rotation_range: 0
+    width_shift_range: 0.15
+    height_shift_range: 0.15
+    horizontal_flip: True
+    vertical_flip: False
+    zoom_range: 0
+    shear_range: 0
+    channel_shift_range: 0
+    featurewise_center: False
+    zca_whitening: False
+
+target_name: class
+
+
+#INITIAL SETTINGS
+data_directory: ../data/
+data_name: breast-cancer-wisconsin.data
+drop_columns: ["id"]
+target_name: class
+test_size: 0.2
+model_directory: ../models/
+model_name: KNN_classifier.pkl
+
+
+#kNN parameters
+n_neighbors: 5
+weights: uniform
+algorithm: auto
+leaf_size: 15
+p: 2
+metric: minkowski
+n_jobs: 1
