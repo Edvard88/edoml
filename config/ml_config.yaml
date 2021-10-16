@@ -12,9 +12,7 @@ dataset:
   file_path: ../datasets/cifar10_keras.py
   spark_table_path: spark_table_name
 target_name: target
-metric: ['roc_auc',
-
-
+metric: ['roc_auc']
 
 classification:
   # Training configuration
