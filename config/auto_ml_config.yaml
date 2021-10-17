@@ -1,24 +1,105 @@
 # AutoML config
-- spark version
+
+
+# Final structure of YAML
 - sklearn version
+  - classification
+    - light version
+    - hard version
+  regression
+    - light version
+    - hard version
+- spark version
+  - classification
+    - light version
+    - hard version
+  regression
+    - light version
+    - hard version
 
-- light version
-- hard version
 
 
-# Pre-training configuration
-random_state: 42
-dataset:
-  file_path: ../datasets/cifar10_keras.py
-  spark_table_path: spark_table_name
-target_name: target
-metric: ['roc_auc']
 
-classification:
-  # Training configuration
-  - pipeline:
-    - unioun_features:
-        - ModifiedFeatureUnion:
+# First part of structure:
+#- sklearn version
+#  - classification
+#    - light version
+-
+sklearn_version:
+  - classification:
+    # Pre-training configuration
+    - light_version: True
+    - metric: ['roc_auc']
+
+    # Training configuration
+    - pipeline:
+        # Categorical features selector
+        - categorical_features:
+          - select_features:
+            - FeatureSelector:
+                - columns: ../../base_ml_config.yaml{{categorical_columns}}
+          # Fill NaN
+          - imputer_cat_list:
+            - ModifiedSimpleImputer:
+                - name: "SimpleImputer_for_Categorical_features"
+                - fill_value: ['missing']
+                - strategy: ['constant', 'most_frequent', 'mean', 'median']
+          - label_encoding:
+            - MyLEncoder:
+                - name: "MyLEncoder"
+        # Numerical features selector
+        - numerical_features:
+         - select_features:
+            - FeatureSelector:
+                - columns: ../../base_ml_config.yaml{{numerical_columns}}
+          - imputer_numeric:
+            - ModifiedSimpleImputer:
+                - name: "SimpleImputer_for_Numerical_features"
+                - fill_value: [0, -1]
+                - strategy: ['constant', 'most_frequent', 'mean', 'median']
+          - scaler_normalize:
+            - MinMaxScaler:
+                - feature_range: [(0,1) , (2,3)]
+        # Machine learning models
+        - models:
+          - DummyClassifier:
+            - name: 'DummyClassifier'
+            - strategy: ['stratified', 'most_frequent', 'prior', 'uniform', 'constant']
+            - random_state: ../../base_ml_config.yaml/{{random_state}}
+          - LogisticRegression:
+            - penalty: ('l1', 'l2')
+            - C: (.01 , 5) ----range
+          - RandomForestClassifier:
+            - name: 'RandomForestClassifier'
+            - n_estimators: [10, 30]
+            - criterion: ['gini', 'entropy']
+          - KNeighborsClassifier:
+            - name: 'KNeighborsClassifier'
+            - n_neighbors: range(3, 6, 2) ----range
+          - CatBoostClassifier:
+            - depth: [3, 9, 10]
+            - iterations: [250, 1000]
+            - learning_rate: [0.03, 0.1, 0.2, 0.3]
+            - l2_leaf_reg: [3, 1, 100]
+
+
+
+
+Вопросы:
+  - Если у нас просто встречается модель без параметров, то ее не заносить в config, можно ли делать как-то eval из config?
+  - Есть такие шаги как FeatureSelector, которому на вход подается список колонок, который вычисляется обычно выше,
+    нужно ли его(FeatureSelector) выносить в конфиг
+  - Можно ли в yaml добавлять range(0,10) и как?
+  - Вставть занчение из другого yaml файла
+
+
+
+
+
+
+############## Чероновик #################
+
+      - ModifiedFeatureUnion:
         - FeatureSelector:
         # Categorical features selector
         - imputer_cat_list:
@@ -31,42 +112,6 @@ classification:
         # Numerical features selector
         - imputer_numeric:
             - ModifiedSimpleImputer:
-                - name: "ModifiedSimpleImputer for Numerical features"
-                - fill_value: [0, -1]
-                - strategy: ['constant', 'most_frequent', 'mean', 'median']
-        - scaler_normalize:
-            - MinMaxScaler:
-                - feature_range: [(0,1) , (2,3)]
-        - models:
-            - DummyClassifier:
-                - strategy: ['stratified', 'most_frequent', 'prior', 'uniform', 'constant']
-                - random_state: '{{random_state}}'
-            - LogisticRegression:
-                - penalty: ('l1', 'l2')
-                - C: (.01 , 5)
-            - RandomForestClassifier:
-                - name: 'RandomForestClassifier'
-                - n_estimators: [10, 30]
-                - criterion: ['gini', 'entropy']
-            - KNeighborsClassifier:
-                - name: 'KNeighborsClassifier'
-                - n_neighbors: range(3, 6, 2)
-            - CatBoostClassifier:
-                - depth:[3, 9, 10],
-                - 'iterations':[250, 1000],
-                - 'learning_rate':[0.03, 0.1, 0.2, 0.3],
-                - 'l2_leaf_reg':[3, 1, 100],
-
-
-
-        forest_params = {'n_estimators': [10, 30],
-                         'criterion': ('gini', 'entropy')}
-
-  logistic_params = {'penalty': ('l1', 'l2'),
-                             'C': (.01,5)}
-
-
-
 
 
 
@@ -92,6 +137,34 @@ Pipeline([
              # categorical features
             ('categorical', Pipeline([
                  ('selector', FeatureSelector(columns = cat_features)),
+                 ('imputer_categorical', imputer_categorical(**current_imputer_categorical_params)),
+                 ('label_encoding', encoder(**current_encoder_param))
+            ])),
+            # numeric features
+            ('numeric', Pipeline([
+                 ('selector', FeatureSelector(columns = digits_features)),
+                 ('imputer_numeric', imputer_numeric(**current_imputer_numeric_params)),
+                 ('scaler', scaler(**current_scaler_param))
+            ])),
+        ])),
+    # Use model fit
+    ('model', clf(**tmp_params)),
+])
+
+
+
+
+# Идеальный Pipeline
+
+Pipeline([
+    # Use FeatureUnion to combine the features
+    ('union', ModifiedFeatureUnion(
+        transformer_list=[
+             # categorical features
+            ('categorical', Pipeline([
+                 ('selector', FeatureSelector(columns = cat_features)),
+                 ('manual_features_creat', MyClassFeaturesCreated(columns = cat_features)),
+                 ('auto_features_creat', TSFreash(columns = cat_features)),
                  ('imputer_categorical', imputer_categorical(**current_imputer_categorical_params)),
                  ('label_encoding', encoder(**current_encoder_param))
             ])),

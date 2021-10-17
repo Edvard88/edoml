@@ -1,0 +1,8 @@
+# Spark initialization
+spark:
+  - appName: "AutoML start"
+  - config: "spark.some.config.option", "some-value"
+
+ml_flow:
+  -
+  -

@@ -1,3 +1,0 @@
-# Spark initialization
-appName: "AutoML start"
-config: "spark.some.config.option", "some-value"
