@@ -3,19 +3,19 @@
 
 # Final structure of YAML
 - sklearn version
-  - classification
-    - light version
-    - hard version
-  regression
-    - light version
-    - hard version
+  - light version
+    - classification
+    - regression
+  - hard version
+    - classification
+    - regression
 - spark version
-  - classification
-    - light version
-    - hard version
-  regression
-    - light version
-    - hard version
+  - light version
+    - classification
+    - regression
+  - hard version
+    - classification
+    - regression
 
 # Pre-train configuration
 random_state: 42
@@ -29,69 +29,69 @@ model_directory: ../models/
 #    - light version
 -
 sklearn_version:
-  - classification:
-    # Pre-training configuration
-    - light_version: True
-    - metric: ['roc_auc']
+  - light_version: True
+    - classification:
+      # Pre-training configuration
+      - metric: ['roc_auc']
 
-    # Training configuration
-    - pipeline:
-        # Categorical features selector
-        - categorical_features:
-          - select_features:
-            - FeatureSelector:
-                - name: "FeatureSelector for_Categorical_features"
-                # !!!! Не знаю надо ли так писать, тк берется автоматически, либо в конкретном примере пользователь указыает
-                - columns: {{categorical_columns}}
-          # Fill NaN
-          - imputer_cat_list:
-            - ModifiedSimpleImputer:
-                - name: "SimpleImputer_for_Categorical_features"
-                - fill_value: ['missing']
-                - strategy: ['constant', 'most_frequent', 'mean', 'median']
-          - label_encoding:
-            - MyLEncoder:
-                - name: "MyLEncoder"
-        # Numerical features selector
-        - numerical_features:
-         - select_features:
-            - FeatureSelector:
-                - columns: {{numerical_columns}}
-          - imputer_numeric:
-            - ModifiedSimpleImputer:
-                - name: "SimpleImputer_for_Numerical_features"
-                - fill_value: [0, -1]
-                - strategy: ['constant', 'most_frequent', 'mean', 'median']
-          - scaler_normalize:
-            - MinMaxScaler:
-                - feature_range: [(0,1) , (2,3)]
-        # Machine learning models
-        - models:
-          - DummyClassifier:
-            - name: 'DummyClassifier'
-            - strategy: ['stratified', 'most_frequent', 'prior', 'uniform', 'constant']
-            - random_state: ../../base_ml_config.yaml/{{random_state}}
-          - LogisticRegression:
-            - penalty: ('l1', 'l2')
-            - C:
-              - range_start: .01
-              - range_end: 5
-              - range_step: 0
-          - RandomForestClassifier:
-            - name: 'RandomForestClassifier'
-            - n_estimators: [10, 30]
-            - criterion: ['gini', 'entropy']
-          - KNeighborsClassifier:
-            - name: 'KNeighborsClassifier'
-            - n_neighbors:
-             - range_start: 3
-             - range_end: 6
-             - range_step: 2
-          - CatBoostClassifier:
-            - depth: [3, 9, 10]
-            - iterations: [250, 1000]
-            - learning_rate: [0.03, 0.1, 0.2, 0.3]
-            - l2_leaf_reg: [3, 1, 100]
+      # Training configuration
+      - pipeline:
+          # Categorical features selector
+          - categorical_features:
+            - select_features:
+              - FeatureSelector:
+                  - name: "FeatureSelector for_Categorical_features"
+                  # !!!! Не знаю надо ли так писать, тк берется автоматически, либо в конкретном примере пользователь указыает
+                  - columns: {{categorical_columns}}
+            # Fill NaN
+            - imputer_cat_list:
+              - ModifiedSimpleImputer:
+                  - name: "SimpleImputer_for_Categorical_features"
+                  - fill_value: ['missing']
+                  - strategy: ['constant', 'most_frequent', 'mean', 'median']
+            - label_encoding:
+              - MyLEncoder:
+                  - name: "MyLEncoder"
+          # Numerical features selector
+          - numerical_features:
+           - select_features:
+              - FeatureSelector:
+                  - columns: {{numerical_columns}}
+            - imputer_numeric:
+              - ModifiedSimpleImputer:
+                  - name: "SimpleImputer_for_Numerical_features"
+                  - fill_value: [0, -1]
+                  - strategy: ['constant', 'most_frequent', 'mean', 'median']
+            - scaler_normalize:
+              - MinMaxScaler:
+                  - feature_range: [(0,1) , (2,3)]
+          # Machine learning models
+          - models:
+            - DummyClassifier:
+              - name: 'DummyClassifier'
+              - strategy: ['stratified', 'most_frequent', 'prior', 'uniform', 'constant']
+              - random_state: ../../base_ml_config.yaml/{{random_state}}
+            - LogisticRegression:
+              - penalty: ('l1', 'l2')
+              - C:
+                - range_start: .01
+                - range_end: 5
+                - range_step: 0
+            - RandomForestClassifier:
+              - name: 'RandomForestClassifier'
+              - n_estimators: [10, 30]
+              - criterion: ['gini', 'entropy']
+            - KNeighborsClassifier:
+              - name: 'KNeighborsClassifier'
+              - n_neighbors:
+               - range_start: 3
+               - range_end: 6
+               - range_step: 2
+            - CatBoostClassifier:
+              - depth: [3, 9, 10]
+              - iterations: [250, 1000]
+              - learning_rate: [0.03, 0.1, 0.2, 0.3]
+              - l2_leaf_reg: [3, 1, 100]
 
 
 
