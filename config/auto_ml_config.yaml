@@ -27,7 +27,6 @@ model_directory: ../models/
 #- sklearn version
 #  - classification
 #    - light version
--
 sklearn_version:
   - light_version: True
     - classification:
