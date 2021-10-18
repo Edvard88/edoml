@@ -1,9 +1,9 @@
 # Pre-training configuration
-random_state: 42
-log_path: ../logs/logs.txt
-model_directory: ../models/
-columns:
-  - categorical_columns: [list_of_columns]
-  - numerical_columns: [list_of_columns]
-  - drop_columns: [list_of_columns]
-
+#random_state: 42
+#log_path: ../logs/logs.txt
+#model_directory: ../models/
+#columns:
+#  - categorical_columns: [list_of_columns]
+#  - numerical_columns: [list_of_columns]
+#  - drop_columns: [list_of_columns]
+#

@@ -17,7 +17,10 @@
     - light version
     - hard version
 
-
+# Pre-train configuration
+random_state: 42
+log_path: ../logs/logs.txt
+model_directory: ../models/
 
 
 # First part of structure:
@@ -37,7 +40,9 @@ sklearn_version:
         - categorical_features:
           - select_features:
             - FeatureSelector:
-                - columns: ../../base_ml_config.yaml{{categorical_columns}}
+                - name: "FeatureSelector for_Categorical_features"
+                # !!!! Не знаю надо ли так писать, тк берется автоматически, либо в конкретном примере пользователь указыает
+                - columns: {{categorical_columns}}
           # Fill NaN
           - imputer_cat_list:
             - ModifiedSimpleImputer:
@@ -51,7 +56,7 @@ sklearn_version:
         - numerical_features:
          - select_features:
             - FeatureSelector:
-                - columns: ../../base_ml_config.yaml{{numerical_columns}}
+                - columns: {{numerical_columns}}
           - imputer_numeric:
             - ModifiedSimpleImputer:
                 - name: "SimpleImputer_for_Numerical_features"
@@ -68,14 +73,20 @@ sklearn_version:
             - random_state: ../../base_ml_config.yaml/{{random_state}}
           - LogisticRegression:
             - penalty: ('l1', 'l2')
-            - C: (.01 , 5) ----range
+            - C:
+              - range_start: .01
+              - range_end: 5
+              - range_step: 0
           - RandomForestClassifier:
             - name: 'RandomForestClassifier'
             - n_estimators: [10, 30]
             - criterion: ['gini', 'entropy']
           - KNeighborsClassifier:
             - name: 'KNeighborsClassifier'
-            - n_neighbors: range(3, 6, 2) ----range
+            - n_neighbors:
+             - range_start: 3
+             - range_end: 6
+             - range_step: 2
           - CatBoostClassifier:
             - depth: [3, 9, 10]
             - iterations: [250, 1000]
@@ -89,8 +100,8 @@ sklearn_version:
   - Если у нас просто встречается модель без параметров, то ее не заносить в config, можно ли делать как-то eval из config?
   - Есть такие шаги как FeatureSelector, которому на вход подается список колонок, который вычисляется обычно выше,
     нужно ли его(FeatureSelector) выносить в конфиг
-  - Можно ли в yaml добавлять range(0,10) и как?
-  - Вставть занчение из другого yaml файла
+  + Можно ли в yaml добавлять range(0,10) и как?
+  + Вставть занчение из другого yaml файла
 
 
 
