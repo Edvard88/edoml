@@ -1,3 +1,6 @@
+
+# Пока можно удалить не понятно зачем нужен
+
 # Pre-training configuration
 #random_state: 42
 #log_path: ../logs/logs.txt

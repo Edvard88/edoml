@@ -1,7 +1,9 @@
-dataset:
-  - name: "breast-cancer-wisconsin.csv"
-  - file_path: ../datasets/dataset.csv
-  - spark_table_path: spark_table_name
-target_name: target
-#train_dataset: ../datasets/get_train.py
-#test_dataset: ../datasets/get_test.py
+# Этот конфиг нужен только для реальной задачи откуда брать данные и тд, не для AutoML кода.
+
+#dataset:
+#  - name: "breast-cancer-wisconsin.csv"
+#  - file_path: ../datasets/dataset.csv
+#  - spark_table_path: spark_table_name
+#target_name: target
+##train_dataset: ../datasets/get_train.py
+##test_dataset: ../datasets/get_test.py

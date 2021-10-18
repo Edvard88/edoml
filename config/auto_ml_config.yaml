@@ -21,6 +21,7 @@
 random_state: 42
 log_path: ../logs/logs.txt
 model_directory: ../models/
+ml_flow: env_config.yaml/ml_flow
 
 
 # First part of structure:
@@ -53,7 +54,7 @@ sklearn_version:
                   - name: "MyLEncoder"
           # Numerical features selector
           - numerical_features:
-           - select_features:
+            - select_features:
               - FeatureSelector:
                   - columns: {{numerical_columns}}
             - imputer_numeric:
@@ -91,7 +92,6 @@ sklearn_version:
               - iterations: [250, 1000]
               - learning_rate: [0.03, 0.1, 0.2, 0.3]
               - l2_leaf_reg: [3, 1, 100]
-
 
 
 

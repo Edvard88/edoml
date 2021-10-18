@@ -1,16 +1,50 @@
 # Spark initialization
-dependencies:
-  - python=3.7
-  - pip
+
+develop_env:
+  - dependencies:
+    - python=3.7
+    - pip
 
 
-spark:
-  - appName: "AutoML start"
-  - spark.executor.memory: '4g'
-  - spark.driver.memory: '4g'
-  - spark.cores.max: '2'
-  - num_workers : 2
+  - spark:
+    - appName: "AutoML start"
+    - spark.executor.memory: '4g'
+    - spark.driver.memory: '4g'
+    - spark.cores.max: '2'
+    - num_workers : 2
 
-ml_flow:
-  - config_params:
-  -
+  - ml_flow:
+    - config_params:
+
+test_env:
+  - dependencies:
+    - python=3.7
+    - pip
+
+
+  - spark:
+    - appName: "AutoML start"
+    - spark.executor.memory: '4g'
+    - spark.driver.memory: '4g'
+    - spark.cores.max: '2'
+    - num_workers : 2
+
+  - ml_flow:
+    - config_params:
+
+prod_env:
+  - dependencies:
+    - python=3.7
+    - pip
+
+
+  - spark:
+    - appName: "AutoML start"
+    - spark.executor.memory: '4g'
+    - spark.driver.memory: '4g'
+    - spark.cores.max: '2'
+    - num_workers : 2
+
+  - ml_flow:
+    - config_params:
+
