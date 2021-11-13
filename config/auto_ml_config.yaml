@@ -67,6 +67,7 @@ sklearn_version:
                   - feature_range: [(0,1) , (2,3)]
           # Machine learning models
           - models:
+              - -one_of # Выбор одной из модели
             - DummyClassifier:
               - name: 'DummyClassifier'
               - strategy: ['stratified', 'most_frequent', 'prior', 'uniform', 'constant']
@@ -77,13 +78,13 @@ sklearn_version:
                 - range_start: .01
                 - range_end: 5
                 - range_step: 0
-            - RandomForestClassifier:
+            - sklearn.models.RandomForestClassifier: # Вызов из sklearn
               - name: 'RandomForestClassifier'
               - n_estimators: [10, 30]
               - criterion: ['gini', 'entropy']
             - KNeighborsClassifier:
               - name: 'KNeighborsClassifier'
-              - n_neighbors:
+              - n_neighbors: # Не понятно приходит ли ключ __range_start или происходит перебор дапозона,а лучше явно указать диапозон
                - range_start: 3
                - range_end: 6
                - range_step: 2
